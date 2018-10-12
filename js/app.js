@@ -201,7 +201,7 @@ bleBtn.addEventListener('pointerup', function(event) {
         connectBtn.disabled = false;
       }
     };
-  }); 
+  });
 });
 
 function getCharacteristics(device){
@@ -254,3 +254,41 @@ function escape (str) {
     .replace(/\//g, '_')
     .replace(/=/g, '')
 }
+
+
+
+/*GPS button: first press = start, second press=stop
+  MQTT messages sent in this format "deviceUri"/gps/{latitude: 46.56666, longitude:7.1111}"
+*/
+
+
+function getPosition(){
+  navigator.geolocation.getCurrentPosition(function(position){
+    let toSend="{latitude:"+position.coords.latitude+", longitude:"+position.coords.longitude+"}";
+    client.publish(Object.keys(deviceMap)[0]+"/gps", toSend);
+  });
+}
+
+
+let myGps;
+document.getElementById("btn-gps").addEventListener("pointerup", function(){
+  if(document.getElementById("btn-gps").firstChild.nodeValue =="Start GPS"){
+    if(client && client.connected & Object.keys(deviceMap).length>0){
+      if (navigator.geolocation){
+        myGps = setInterval(getPosition, 3000);
+        getPosition();
+        document.getElementById("btn-gps").firstChild.nodeValue = "Stop GPS"
+      }
+      else{
+        window.alert("Geolocation is not supported by this browser.")
+      }
+    }
+    else{
+      window.alert("1) Connection to the MQTT server required \n 2) Thingy should be connected")
+    }
+  }
+  else{
+    clearInterval(myGps);
+    document.getElementById("btn-gps").firstChild.nodeValue ="Start GPS"
+  }
+});
