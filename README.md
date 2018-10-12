@@ -1,6 +1,7 @@
 # Web Bluetooth Proxy
 
-The Web Bluetooth Proxy (`webbluetooth-proxy`) is a web application that forwards [GATT](https://learn.adafruit.com/introduction-to-bluetooth-low-energy/gatt) operations between BLE peripherals and MQTT. The Web Bluetooth Proxy is available on [duranda.github.io/webbluetooth-proxy](https://duranda.github.io/webbluetooth-proxy/).
+The Web Bluetooth Proxy (`webbluetooth-proxy`) is a web application that forwards [GATT](https://learn.adafruit.com/introduction-to-bluetooth-low-energy/gatt) operations between BLE peripherals and MQTT. The original version of the Web Bluetooth Proxy is available on [duranda.github.io/webbluetooth-proxy](https://duranda.github.io/webbluetooth-proxy/).
+Our modified version (supporting GPS tracking) is available on [aseteamblue.github.io/webbluetooth-proxy](https://aseteamblue.github.io/webbluetooth-proxy/).
 
 ## Compatible browsers
 
