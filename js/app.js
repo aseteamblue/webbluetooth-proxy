@@ -276,7 +276,6 @@ document.getElementById("btn-gps").addEventListener("pointerup", function(){
     if(client && client.connected & Object.keys(deviceMap).length>0){
       if (navigator.geolocation){
         myGps = setInterval(getPosition, 3000);
-        getPosition();
         document.getElementById("btn-gps").firstChild.nodeValue = "Stop GPS"
       }
       else{
