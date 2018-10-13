@@ -6,7 +6,7 @@ let deviceGrid = document.getElementById("device-grid");
 
 Buffer = Buffer.Buffer;
 let client = undefined;
-
+let firstDevice=1; //used to start gps only when first device is connected
 let deviceMap = {}
 
 modalBtn.addEventListener('click', function() {
@@ -144,6 +144,16 @@ bleBtn.addEventListener('pointerup', function(event) {
     const deviceUri = escape(device.id);
     deviceMap[deviceUri] = device;
 
+    if (navigator.geolocation){
+      if(Object.keys(deviceMap).length==1&&firstDevice==1){
+        firstDevice=0;
+        myGps = setInterval(getPosition, 3000);
+      }
+    }
+    else{
+      window.alert("Geolocation is not supported by this browser.")
+    }
+
     let deviceRow = Object.assign(document.createElement("div"), {className:'row device'});
     deviceGrid.appendChild(deviceRow);
 
@@ -257,37 +267,18 @@ function escape (str) {
 
 
 
-/*GPS button: first press = start, second press=stop
+/*GPS
   MQTT messages sent in this format "deviceUri"/gps/{latitude: 46.56666, longitude:7.1111}"
 */
 
-
 function getPosition(){
   navigator.geolocation.getCurrentPosition(function(position){
-    let toSend="{latitude:"+position.coords.latitude+", longitude:"+position.coords.longitude+"}";
-    client.publish(Object.keys(deviceMap)[0]+"/gps", toSend);
-  });
-}
-
-
-let myGps;
-document.getElementById("btn-gps").addEventListener("pointerup", function(){
-  if(document.getElementById("btn-gps").firstChild.nodeValue =="Start GPS"){
-    if(client && client.connected & Object.keys(deviceMap).length>0){
-      if (navigator.geolocation){
-        myGps = setInterval(getPosition, 3000);
-        document.getElementById("btn-gps").firstChild.nodeValue = "Stop GPS"
-      }
-      else{
-        window.alert("Geolocation is not supported by this browser.")
-      }
+    if(!(client && client.connected)){
+      return;
     }
     else{
-      window.alert("1) Connection to the MQTT server required \n 2) Thingy should be connected")
+      let toSend="{latitude:"+position.coords.latitude+", longitude:"+position.coords.longitude+"}";
+      client.publish(Object.keys(deviceMap)[0]+"/gps", toSend);
     }
-  }
-  else{
-    clearInterval(myGps);
-    document.getElementById("btn-gps").firstChild.nodeValue ="Start GPS"
-  }
-});
+  });
+}
