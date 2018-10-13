@@ -277,7 +277,7 @@ function getPosition(){
       return;
     }
     else{
-      let toSend="{latitude:"+position.coords.latitude+", longitude:"+position.coords.longitude+"}";
+      let toSend="{\"latitude\":"+position.coords.latitude+", \"longitude\":"+position.coords.longitude+"}";
       client.publish(Object.keys(deviceMap)[0]+"/gps", toSend);
     }
   });
