@@ -6,7 +6,7 @@ let deviceGrid = document.getElementById("device-grid");
 
 Buffer = Buffer.Buffer;
 let client = undefined;
-
+let firstDevice=1; //used to start gps only when first device is connected
 let deviceMap = {}
 
 modalBtn.addEventListener('click', function() {
@@ -138,11 +138,23 @@ bleBtn.addEventListener('pointerup', function(event) {
     optionalServices: [
       'ef680200-9b35-4933-9b10-52ffa9740042',
       'ef680300-9b35-4933-9b10-52ffa9740042',
+      'ef680400-9b35-4933-9b10-52ffa9740042',
+      'ef680500-9b35-4933-9b10-52ffa9740042'
     ]
   }).then(device => {
     console.log(device);
     const deviceUri = escape(device.id);
     deviceMap[deviceUri] = device;
+
+    if (navigator.geolocation){
+      if(Object.keys(deviceMap).length==1&&firstDevice==1){
+        firstDevice=0;
+        myGps = setInterval(getPosition, 3000);
+      }
+    }
+    else{
+      window.alert("Geolocation is not supported by this browser.")
+    }
 
     let deviceRow = Object.assign(document.createElement("div"), {className:'row device'});
     deviceGrid.appendChild(deviceRow);
@@ -201,7 +213,7 @@ bleBtn.addEventListener('pointerup', function(event) {
         connectBtn.disabled = false;
       }
     };
-  }); 
+  });
 });
 
 function getCharacteristics(device){
@@ -253,4 +265,22 @@ function escape (str) {
   return str.replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '')
+}
+
+
+
+/*GPS
+  MQTT messages sent in this format "deviceUri"/gps/{latitude: 46.56666, longitude:7.1111}"
+*/
+
+function getPosition(){
+  navigator.geolocation.getCurrentPosition(function(position){
+    if(!(client && client.connected)){
+      return;
+    }
+    else{
+      let toSend="{\"latitude\":"+position.coords.latitude+", \"longitude\":"+position.coords.longitude+"}";
+      client.publish(Object.keys(deviceMap)[0]+"/gps", toSend);
+    }
+  });
 }
